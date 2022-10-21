@@ -1,0 +1,18 @@
+@import 'fonts.scss';
+
+$background: lightblue;
+$text: rgb(73, 148, 83);
+
+body{
+    background-color: $background;
+    color: $text;
+    font-family: 'Raleway';
+}
+
+.image{
+    width: 300px;
+    height: 500px;
+    background-size: cover;
+    background-image: url('');
+}
+
