@@ -2,9 +2,17 @@ import "@babel/polyfill";
 import './index.html';
 import puzzleWrapper from './layout.html';
 import './style.scss';
+import './click.wav'
 
 let gridSize = 16;
-let width = 4
+let width = 4;
+let count = 0;
+let previousSize;
+let currentSize = 4;
+
+let audio = new Audio('audio/click.wav');
+let soundOn = true;
+
 
 class Tile {
     constructor(position, value, isClickable){
@@ -14,13 +22,25 @@ class Tile {
     }
 }
 
-function initializeLayout(){
+function initializeLayout(size){
     const body = document.querySelector('body');
     body.innerHTML = puzzleWrapper;
-
+    
     const grid = document.querySelector('.game-grid');
-    const tile = document.querySelector('.game-tile');
-    const emptyTile = document.querySelector('.empty-tile')
+    
+    const newGame = document.querySelector('.shuffle')
+    const check = document.querySelector('.check')
+    const audioTumbler = document.querySelector('.sound')
+
+    const size3 = document.querySelector('.size3')
+    const size4 = document.querySelector('.size4')
+    const size5 = document.querySelector('.size5')
+    const size6 = document.querySelector('.size6')
+    const size7 = document.querySelector('.size7')
+    const size8 = document.querySelector('.size8')
+
+    grid.classList.remove(`size-${previousSize}`)
+    grid.classList.add(`size-${size}`)
 
     let newEmptyTile = document.createElement('div');
     newEmptyTile.classList.add('game-tile', 'empty-tile')
@@ -35,12 +55,77 @@ function initializeLayout(){
         newTile.textContent = i
         grid.appendChild(newTile)
     }
+    
+    const tile = document.querySelector('.game-tile');
+    const emptyTile = document.querySelector('.empty-tile')
+
+    newGame.addEventListener('click', shuffleNumbers)
+    newGame.addEventListener("click", () => {
+        clearInterval(timeInterval, 1000)
+        const timeDisplay = document.querySelector('.timer')
+        timeDisplay.textContent = `00:00:00`;
+        elapsedTime = 0;
+        startTime = Date.now() - elapsedTime;
+        timeInterval = setInterval(updateTime, 1000);
+    });
+
+    audioTumbler.addEventListener('click', changeSound)
+    check.addEventListener('click', checkPositions)
+    emptyTile.addEventListener('mouseover', checkPositions)
+
+    size3.addEventListener('click', ()=>{
+        changeSize(3);
+    })
+    size4.addEventListener('click', ()=>{
+        changeSize(4);
+    })
+    size5.addEventListener('click', ()=>{
+        changeSize(5);
+    })
+    size6.addEventListener('click', ()=>{
+        changeSize(6);
+    })
+    size7.addEventListener('click', ()=>{
+        changeSize(7);
+    })
+    size8.addEventListener('click', ()=>{
+        changeSize(8);
+    })
+
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timeInterval;
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+function updateTime(){
+    elapsedTime = Date.now() - startTime;
+    console.log(elapsedTime);
+    seconds = Math.floor((elapsedTime / 1000) % 60);
+    minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
+    hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 60);
+
+    seconds = pad(seconds);
+    minutes = pad(minutes);
+    hours = pad(hours);
+    const timeDisplay = document.querySelector('.timer')
+    timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    function pad(timeUnit){
+        return (("0") + timeUnit).length > 2 ? timeUnit : "0" + timeUnit;
+        
+}
+}
+
 }
 
 function shuffleNumbers(){
-    const tileNumbers = document.querySelectorAll('.game-tile');
+    updateCount(0, true)
+    removeListeners()
     const emptyTile = document.querySelector('.empty-tile')
-    console.log(tileNumbers.length);
+    emptyTile.addEventListener('mouseover', checkPositions)
+
+    const tileNumbers = document.querySelectorAll('.game-tile');
 
     let randomNumbers = []
     for (let i = 0; i < tileNumbers.length; i++) {
@@ -54,7 +139,8 @@ function shuffleNumbers(){
     for (let i = 0; i < tileNumbers.length; i++) {
         tileNumbers[i].parentNode.insertBefore(tileNumbers[i], tileNumbers[randomNumbers[i]])
     }
-
+    
+    checkPositions();
 }
 
 function checkPositions(){
@@ -64,9 +150,6 @@ function checkPositions(){
     for (let i = 0; i < tiles.length; i++) {
         tileNumber.push(tiles[i].textContent);
     }
-
-    console.log(tileNumber);
-    console.log(tiles);
 
     for (let i = 0; i < tiles.length; i++) {
         if(tiles[i].textContent == 0){
@@ -115,23 +198,32 @@ function checkPositions(){
     
 }
 
+function updateCount(add=1, reset){
+    const counter = document.querySelector('.count')
+    count+=add;
+    if(reset){
+        count = 0;
+    }
+    counter.textContent = `Count: ${count}`;
+}
+/*move functions*/
 function moveRight(event){
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if(tiles[i] === event.target){
-            console.log('moved-right');
             tiles[i].parentNode.insertBefore(tiles[i], tiles[i+2])
             removeListeners()
             const emptyTile = document.querySelector('.empty-tile')
             emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
+    updateCount();
+    playSound()
 }
 function moveLeft(event){
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if(tiles[i] === event.target){
-            console.log('moved-left');
             tiles[i].parentNode.insertBefore(tiles[i], tiles[i-1])
             event.target.removeEventListener('click', moveLeft)
             removeListeners()
@@ -139,12 +231,13 @@ function moveLeft(event){
             emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
+    updateCount();
+    playSound()
 }
 function moveDown(event){
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if(tiles[i] === event.target){
-            console.log('moved-down');
             tiles[i].parentNode.insertBefore(tiles[i], tiles[i+5])
             tiles[i+4].parentNode.insertBefore(tiles[i+4], tiles[i+1])
             removeListeners()
@@ -152,12 +245,13 @@ function moveDown(event){
             emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
+    updateCount();
+    playSound()
 }
 function moveUp(event){
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if(tiles[i] === event.target){
-            console.log('moved-up');
             tiles[i].parentNode.insertBefore(tiles[i], tiles[i-4])
             tiles[i-4].parentNode.insertBefore(tiles[i-4], tiles[i+1])
             removeListeners()
@@ -165,6 +259,8 @@ function moveUp(event){
             emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
+    updateCount();
+    playSound()
 }
 
 function removeListeners(){
@@ -174,28 +270,82 @@ function removeListeners(){
     }
 }
 
-function moveElement(event/* , tiles, firstIndx, secondIndx */){
-    console.log(event.target);
-/*     console.log('i worked');
-    tiles[firstIndx].parentNode.insertBefore(tiles[firstIndx], tiles[secondIndx+1]) */
-}
-
-
-function changePositions(){
-
-}
-
+/*app logic*/
 initializeLayout();
 shuffleNumbers();
-checkPositions();
 
+/*звуки*/
 
-const newGame = document.querySelector('.shuffle')
-const check = document.querySelector('.check')
-const emptyTile = document.querySelector('.empty-tile')
+function changeSound(){
+    const audioTumbler = document.querySelector('.sound')
+    soundOn === true ? soundOn = false : soundOn = true;
+    if(soundOn === false){
+        audioTumbler.textContent = "Sound: Off"
+    } else{
+        audioTumbler.textContent = "Sound: On"
+    }
+}
 
-newGame.addEventListener('click', shuffleNumbers)
+function playSound(){
+    if(soundOn){
+        audio.play()
+    }
+}
 
-check.addEventListener('click', checkPositions)
-
-emptyTile.addEventListener('mouseover', checkPositions)
+/*change size*/
+function changeSize(size){
+    if(size === 3){
+        width = size;
+        previousSize = currentSize;
+        currentSize = size;
+        gridSize = size * size
+        const grid = document.querySelector('.game-grid')
+        initializeLayout(size);
+        shuffleNumbers();
+    }
+    if(size === 4){
+        width = size;
+        previousSize = currentSize;
+        currentSize = size;
+        gridSize = size * size
+        const grid = document.querySelector('.game-grid')
+        initializeLayout(size);
+        shuffleNumbers();
+    }
+    if(size === 5){
+        width = size;
+        previousSize = currentSize;
+        currentSize = size;
+        gridSize = size * size
+        const grid = document.querySelector('.game-grid')
+        initializeLayout(size);
+        shuffleNumbers();
+    }
+    if(size === 6){
+        width = size;
+        previousSize = currentSize;
+        currentSize = size;
+        gridSize = size * size
+        const grid = document.querySelector('.game-grid')
+        initializeLayout(size);
+        shuffleNumbers();
+    }
+    if(size === 7){
+        width = size;
+        previousSize = currentSize;
+        currentSize = size;
+        gridSize = size * size
+        const grid = document.querySelector('.game-grid')
+        initializeLayout(size);
+        shuffleNumbers();
+    }
+    if(size === 8){
+        width = size;
+        previousSize = currentSize;
+        currentSize = size;
+        gridSize = size * size
+        const grid = document.querySelector('.game-grid')
+        initializeLayout(size);
+        shuffleNumbers();
+    }
+}

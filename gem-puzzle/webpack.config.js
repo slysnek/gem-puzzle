@@ -38,6 +38,13 @@ module.exports = {
                 loader: 'html-loader',
             },
             {
+                test: /\.(mp3|wav)$/i,
+                type: 'asset',
+                generator: {
+                  filename: 'audio/[name][ext]'
+                }
+            },
+            {
                 test: /\.(c|sa|sc)ss$/i,
                 use: [devMode ? "style-loader" : MiniCssExtractPlugin.loader,
                  "css-loader",
