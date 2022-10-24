@@ -1,18 +1,136 @@
 @import 'fonts.scss';
 
-$background: lightblue;
-$text: rgb(73, 148, 83);
+$background: rgb(27, 35, 47);
+$grid-background: rgb(54, 59, 67);
+$tile-background: rgb(85, 90, 100);
+$tile-background-hover:rgb(146, 154, 167);
+$text: rgb(56, 193, 74);
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
 
 body{
+    height: 100%;
+    margin-left: 200px;
+    margin-right: 200px;
     background-color: $background;
     color: $text;
     font-family: 'Raleway';
+    font-size: 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-.image{
-    width: 300px;
-    height: 500px;
-    background-size: cover;
-    background-image: url('');
+button{
+    appearance: none;
+    font-family: 'Raleway';
+    padding: 6px;
+    border: 1px solid $text;
+    color: $text;
+    background-color: $grid-background;
+}
+
+button:hover{
+    background-color: $tile-background;
+    cursor: pointer;
+}
+
+.puzzle-wrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-wrapper{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.size-wrapper{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.grid-wrapper{
+    width: 100%;
+}
+
+.game-grid{
+    display: grid;
+    background-color: $grid-background;
+    grid-template-columns: repeat(4, 120px);
+    grid-template-rows: repeat(4, 120px);
+    grid-auto-flow: row;
+    box-shadow: 0px 4px 8px 2px rgb(85, 90, 100);
+}
+
+.game-tile{
+    padding: 4px;
+    background-color: $tile-background;
+    border: 1px solid $text;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-tile{
+    background-color: pink;
+}
+
+.game-tile:hover{
+    cursor: pointer;
+    background-color: $tile-background-hover;
+}
+
+.red{
+    background-color: lightcyan;
+}
+
+@media screen and (max-width: 1919px) {
+    body{
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+
+}
+
+@media screen and (max-width: 1439px) {
+    body{
+        margin-left: 40px;
+        margin-right: 40px;
+        font-size: 1.5em;
+    }
+
+    .game-grid{
+        grid-template-columns: repeat(4, 100px);
+        grid-template-rows: repeat(4, 100px);
+    }
+}
+
+@media screen and (max-width: 767px) {
+    body{
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    .game-grid{
+        grid-template-columns: repeat(4, 60px);
+        grid-template-rows: repeat(4, 60px);
+    }
 }
 
