@@ -13,17 +13,11 @@ $text: rgb(56, 193, 74);
 }
 
 body{
-    height: 100vh;
-    margin-left: 200px;
-    margin-right: 200px;
+    margin: 100px 200px;
     background-color: $background;
     color: $text;
     font-family: 'Raleway';
     font-size: 2em;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
 button{
@@ -83,24 +77,24 @@ button:hover{
     grid-template-rows: repeat(3, 120px);
 }
 .size-4{
-    grid-template-columns: repeat(4, 110px);
-    grid-template-rows: repeat(4, 110px);
+    grid-template-columns: repeat(4, 120px);
+    grid-template-rows: repeat(4, 120px);
 }
 .size-5{
-    grid-template-columns: repeat(5, 100px);
-    grid-template-rows: repeat(5, 100px);
+    grid-template-columns: repeat(5, 120px);
+    grid-template-rows: repeat(5, 120px);
 }
 .size-6{
-    grid-template-columns: repeat(6, 80px);
-    grid-template-rows: repeat(6, 80px);
+    grid-template-columns: repeat(6, 100px);
+    grid-template-rows: repeat(6, 100px);
 }
 .size-7{
-    grid-template-columns: repeat(7, 80px);
-    grid-template-rows: repeat(7, 80px);
+    grid-template-columns: repeat(7, 90px);
+    grid-template-rows: repeat(7, 90px);
 }
 .size-8{
-    grid-template-columns: repeat(8, 50px);
-    grid-template-rows: repeat(8, 50px);
+    grid-template-columns: repeat(8, 80px);
+    grid-template-rows: repeat(8, 80px);
 }
 
 .game-tile{
@@ -113,7 +107,7 @@ button:hover{
 }
 
 .empty-tile{
-    background-color: pink;
+    background-color: $grid-background;
 }
 
 .game-tile:hover{
@@ -123,32 +117,104 @@ button:hover{
 
 .red{
     background-color: lightcyan;
+    transition: 0.1s ease-in;
 }
 
 @media screen and (max-width: 1919px) {
     body{
-        margin-left: 100px;
-        margin-right: 100px;
+        margin: 60px 160px;
+    }
+    .size-3{
+        grid-template-columns: repeat(3, 120px);
+        grid-template-rows: repeat(3, 120px);
+    }
+    .size-4{
+        grid-template-columns: repeat(4, 120px);
+        grid-template-rows: repeat(4, 120px);
+    }
+    .size-5{
+        grid-template-columns: repeat(5, 100px);
+        grid-template-rows: repeat(5, 100px);
+    }
+    .size-6{
+        grid-template-columns: repeat(6, 80px);
+        grid-template-rows: repeat(6, 80px);
+    }
+    .size-7{
+        grid-template-columns: repeat(7, 70px);
+        grid-template-rows: repeat(7, 70px);
+    }
+    .size-8{
+        grid-template-columns: repeat(8, 70px);
+        grid-template-rows: repeat(8, 70px);
     }
 
 }
 
 @media screen and (max-width: 1439px) {
     body{
-        margin-left: 40px;
-        margin-right: 40px;
+        margin: 40px;
+    }
+
+    .size-3{
+        grid-template-columns: repeat(3, 120px);
+        grid-template-rows: repeat(3, 120px);
+    }
+    .size-4{
+        grid-template-columns: repeat(4, 120px);
+        grid-template-rows: repeat(4, 120px);
+    }
+    .size-5{
+        grid-template-columns: repeat(5, 100px);
+        grid-template-rows: repeat(5, 100px);
+    }
+    .size-6{
+        grid-template-columns: repeat(6, 80px);
+        grid-template-rows: repeat(6, 80px);
+    }
+    .size-7{
+        grid-template-columns: repeat(7, 70px);
+        grid-template-rows: repeat(7, 70px);
+    }
+    .size-8{
+        grid-template-columns: repeat(8, 70px);
+        grid-template-rows: repeat(8, 70px);
     }
 }
 
 @media screen and (max-width: 767px) {
     body{
-        margin-left: 16px;
-        margin-right: 16px;
-        font-size: 1.5em;
+        margin: 30px 10px;
+        font-size: 1.3em;
+    }
+
+    .size-3{
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(3, 80px);
+    }
+    .size-4{
+        grid-template-columns: repeat(4, 75px);
+        grid-template-rows: repeat(4, 75px);
+    }
+    .size-5{
+        grid-template-columns: repeat(5, 60px);
+        grid-template-rows: repeat(5, 60px);
+    }
+    .size-6{
+        grid-template-columns: repeat(6, 45px);
+        grid-template-rows: repeat(6, 45px);
+    }
+    .size-7{
+        grid-template-columns: repeat(7, 40px);
+        grid-template-rows: repeat(7, 40px);
+    }
+    .size-8{
+        grid-template-columns: repeat(8, 38px);
+        grid-template-rows: repeat(8, 38px);
     }
 
     button{
-        font-size: 1em;
+        font-size: 1.1em;
     }
 
 }
