@@ -21,7 +21,7 @@ let seconds = 0;
 
 function updateTime() {
     elapsedTime = Date.now() - startTime;
-    console.log(elapsedTime);
+
     seconds = Math.floor((elapsedTime / 1000) % 60);
     minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
     hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 60);
@@ -62,6 +62,9 @@ function initializeLayout(size) {
     const size7 = document.querySelector('.size7')
     const size8 = document.querySelector('.size8')
 
+    const save = document.querySelector('.save')
+    const load = document.querySelector('.load')
+
     grid.classList.remove(`size-${previousSize}`)
     if (currentSize === 3) {
         grid.classList.remove('size-4')
@@ -89,7 +92,7 @@ function initializeLayout(size) {
     newGame.addEventListener('click', shuffleNumbers)
 
     audioTumbler.addEventListener('click', changeSound)
-    emptyTile.addEventListener('mouseover', checkPositions)
+
 
     size3.addEventListener('click', () => {
         changeSize(3);
@@ -109,10 +112,10 @@ function initializeLayout(size) {
     size8.addEventListener('click', () => {
         changeSize(8);
     })
+
+    save.addEventListener('click', setLocalStorage)
+    load.addEventListener('click', getLocalStorage)
     /* timer */
-
-
-
     newGame.addEventListener("click", () => {
         clearInterval(timeInterval, 1000)
         const timeDisplay = document.querySelector('.timer')
@@ -135,14 +138,15 @@ function initializeLayout(size) {
     } else {
         audioTumbler.textContent = "Sound: On"
     }
-
+    /*loading data*/
+    window.addEventListener('beforeunload', setLocalStorage)
 }
 
 function shuffleNumbers() {
     updateCount(0, true)
     removeListeners()
     const emptyTile = document.querySelector('.empty-tile')
-    emptyTile.addEventListener('mouseover', checkPositions)
+
     const tileNumbers = document.querySelectorAll('.game-tile');
 
     clearInterval(timeInterval, 1000)
@@ -180,9 +184,9 @@ function checkPositions() {
         if (tiles[i].textContent == 0) {
             //just i because we count table from 0
             if (tiles[i - 1] !== undefined && (i) % width > 0) {//left from zero
-                tiles[i - 1].classList.add('red')
+                tiles[i - 1].classList.add('glow')
                 setTimeout(() => {
-                    tiles[i - 1].classList.remove('red')
+                    tiles[i - 1].classList.remove('glow')
                 }
                     , 150)
                 tiles[i - 1].addEventListener('click', moveRight)
@@ -191,9 +195,9 @@ function checkPositions() {
             }
 
             if (tiles[i + 1] !== undefined && (i + 1) % width > 0) {//right from zero
-                tiles[i + 1].classList.add('red')
+                tiles[i + 1].classList.add('glow')
                 setTimeout(() => {
-                    tiles[i + 1].classList.remove('red')
+                    tiles[i + 1].classList.remove('glow')
                 }
                     , 150)
                 tiles[i + 1].addEventListener('click', moveLeft)
@@ -202,9 +206,9 @@ function checkPositions() {
             }
 
             if (tiles[i - width] !== undefined) {//up from zero
-                tiles[i - width].classList.add('red')
+                tiles[i - width].classList.add('glow')
                 setTimeout(() => {
-                    tiles[i - width].classList.remove('red')
+                    tiles[i - width].classList.remove('glow')
                 }
                     , 150)
                 tiles[i - width].addEventListener('click', moveDown)
@@ -213,9 +217,9 @@ function checkPositions() {
                 console.log('ашипка вверх');
             }
             if (tiles[i + width] !== undefined) {//down from zero
-                tiles[i + width].classList.add('red')
+                tiles[i + width].classList.add('glow')
                 setTimeout(() => {
-                    tiles[i + width].classList.remove('red')
+                    tiles[i + width].classList.remove('glow')
                 }
                     , 150)
                 tiles[i + width].addEventListener('click', moveUp)
@@ -243,11 +247,11 @@ function moveRight(event) {
             tiles[i].parentNode.insertBefore(tiles[i], tiles[i + 2])
             removeListeners()
             const emptyTile = document.querySelector('.empty-tile')
-            emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
     updateCount();
     playSound()
+    checkPositions();
 }
 function moveLeft(event) {
     const tiles = document.querySelectorAll('.game-tile');
@@ -257,11 +261,11 @@ function moveLeft(event) {
             event.target.removeEventListener('click', moveLeft)
             removeListeners()
             const emptyTile = document.querySelector('.empty-tile')
-            emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
     updateCount();
     playSound()
+    checkPositions();
 }
 function moveDown(event) {
     const tiles = document.querySelectorAll('.game-tile');
@@ -271,11 +275,11 @@ function moveDown(event) {
             tiles[i + width].parentNode.insertBefore(tiles[i + width], tiles[i + 1])
             removeListeners()
             const emptyTile = document.querySelector('.empty-tile')
-            emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
     updateCount();
     playSound()
+    checkPositions();
 }
 function moveUp(event) {
     const tiles = document.querySelectorAll('.game-tile');
@@ -285,11 +289,11 @@ function moveUp(event) {
             tiles[i - width].parentNode.insertBefore(tiles[i - width], tiles[i + 1])
             removeListeners()
             const emptyTile = document.querySelector('.empty-tile')
-            emptyTile.addEventListener('mouseover', checkPositions)
         }
     }
     updateCount();
     playSound()
+    checkPositions();
 }
 
 function removeListeners() {
@@ -378,3 +382,72 @@ function changeSize(size) {
         shuffleNumbers();
     }
 }
+
+/*storage*/
+function setLocalStorage() {
+    console.log('saving...');
+    const timeDisplay = document.querySelector('.timer')
+    const tiles = document.querySelectorAll('.game-tile')
+    const tileNums = []
+    const numValues = []
+    for (let i = 0; i < tiles.length; i++) {
+        tileNums.push(tiles[i].textContent)
+        numValues.push(tiles[i].numValue)
+    }
+
+    localStorage.setItem('time', timeDisplay.textContent);
+    localStorage.setItem('count', count);
+    localStorage.setItem('elapsedTime', elapsedTime)
+    localStorage.setItem('startTime', startTime)
+    localStorage.setItem('size', currentSize)
+    localStorage.setItem('numValues', numValues)
+    localStorage.setItem('tileNums', tileNums)
+  }
+
+
+function getLocalStorage() {
+    console.log('loading..');
+if(localStorage.getItem('time')) {
+    const timeDisplay = document.querySelector('.timer')
+    timeDisplay.textContent = localStorage.getItem('time');
+}
+if(localStorage.getItem('tileNums')){
+    let tileNumsArr = localStorage.getItem('tileNums').split(',');
+    console.log(tileNumsArr);
+    const tiles = document.querySelectorAll('.game-tile')
+    const emptyTile = document.querySelector('.empty-tile')
+    for (let i = 0; i < tileNumsArr[i].length; i++) {
+        if(tileNumsArr[i] === ""){
+            emptyTile.textContent = tileNumsArr[i]
+        }
+        tiles[i].textContent = tileNumsArr[i]        
+    }
+}
+if(localStorage.getItem('numValues')){
+    let b = localStorage.getItem('numValues');
+    console.log(b);
+}
+/* if(localStorage.getItem('size')) {
+    changeSize(parseInt(localStorage.getItem('size')));
+} */
+if(localStorage.getItem('count')) {
+    count = parseInt(localStorage.getItem('count'));
+    updateCount(0)
+}
+if(localStorage.getItem('elapsedTime')) {
+    elapsedTime = parseInt(localStorage.getItem('elapsedTime'));
+}
+if(localStorage.getItem('startTime')) {
+    startTime = parseInt(localStorage.getItem('startTime'));
+}
+    clearInterval(timeInterval, 1000)
+    const timeDisplay = document.querySelector('.timer')
+    timeDisplay.textContent = localStorage.getItem('time');
+    elapsedTime = parseInt(localStorage.getItem('elapsedTime'));;
+    startTime = Date.now() - elapsedTime;
+    timeInterval = setInterval(updateTime, 1000);
+}
+
+
+
+
