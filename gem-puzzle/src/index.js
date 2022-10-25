@@ -244,56 +244,87 @@ function moveRight(event) {
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i] === event.target) {
-            tiles[i].parentNode.insertBefore(tiles[i], tiles[i + 2])
-            removeListeners()
-            const emptyTile = document.querySelector('.empty-tile')
+            let tileWidth = tiles[i].offsetWidth;
+            tiles[i].style.transform = `translateX(${tileWidth}px)`
+            setTimeout(()=>{
+                tiles[i].style.transform = "none"
+                tiles[i].parentNode.insertBefore(tiles[i], tiles[i + 2])
+            },100)
+            setTimeout(()=>{
+                removeListeners()
+            },110)
         }
     }
-    updateCount();
-    playSound()
-    checkPositions();
+    setTimeout(()=>{
+        updateCount();
+        playSound()
+        checkPositions();
+    },120)
 }
 function moveLeft(event) {
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i] === event.target) {
-            tiles[i].parentNode.insertBefore(tiles[i], tiles[i - 1])
-            event.target.removeEventListener('click', moveLeft)
-            removeListeners()
-            const emptyTile = document.querySelector('.empty-tile')
+            let tileWidth = tiles[i].offsetWidth;
+            tiles[i].style.transform = `translateX(${-tileWidth}px)`
+            setTimeout(()=>{
+                tiles[i].style.transform = "none"
+                tiles[i].parentNode.insertBefore(tiles[i], tiles[i - 1])
+            },100)
+            setTimeout(()=>{
+                removeListeners()
+            }, 110)
         }
     }
-    updateCount();
-    playSound()
-    checkPositions();
+    setTimeout(()=>{
+        updateCount();
+        playSound()
+        checkPositions();
+    }, 120)
 }
 function moveDown(event) {
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i] === event.target) {
-            tiles[i].parentNode.insertBefore(tiles[i], tiles[i + width + 1])
-            tiles[i + width].parentNode.insertBefore(tiles[i + width], tiles[i + 1])
-            removeListeners()
-            const emptyTile = document.querySelector('.empty-tile')
+                let tileWidth = tiles[i].offsetWidth;
+                tiles[i].style.transform = `translateY(${tileWidth}px)`
+                setTimeout(()=>{
+                    tiles[i].style.transform = "none"
+                    tiles[i].parentNode.insertBefore(tiles[i], tiles[i + width + 1])
+                    tiles[i + width].parentNode.insertBefore(tiles[i + width], tiles[i + 1])
+                }, 100)
+                setTimeout(()=>{
+                    removeListeners()
+                }, 110)
         }
     }
-    updateCount();
-    playSound()
-    checkPositions();
+    setTimeout(()=>{
+        updateCount();
+        playSound()
+        checkPositions();
+    }, 120)
 }
 function moveUp(event) {
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i] === event.target) {
-            tiles[i].parentNode.insertBefore(tiles[i], tiles[i - width])
-            tiles[i - width].parentNode.insertBefore(tiles[i - width], tiles[i + 1])
-            removeListeners()
-            const emptyTile = document.querySelector('.empty-tile')
+            let tileWidth = tiles[i].offsetWidth;
+            tiles[i].style.transform = `translateY(${-tileWidth}px)`
+            setTimeout(()=>{
+                tiles[i].style.transform = "none"
+                tiles[i].parentNode.insertBefore(tiles[i], tiles[i - width])
+                tiles[i - width].parentNode.insertBefore(tiles[i - width], tiles[i + 1])
+            }, 100)
+            setTimeout(()=>{
+                removeListeners()
+            },110)
         }
     }
-    updateCount();
-    playSound()
-    checkPositions();
+    setTimeout(()=>{
+        updateCount();
+        playSound()
+        checkPositions();
+    },120)
 }
 
 function removeListeners() {
@@ -411,25 +442,27 @@ if(localStorage.getItem('time')) {
     const timeDisplay = document.querySelector('.timer')
     timeDisplay.textContent = localStorage.getItem('time');
 }
-if(localStorage.getItem('tileNums')){
+/* if(localStorage.getItem('tileNums')){
     let tileNumsArr = localStorage.getItem('tileNums').split(',');
     console.log(tileNumsArr);
     const tiles = document.querySelectorAll('.game-tile')
     const emptyTile = document.querySelector('.empty-tile')
-    for (let i = 0; i < tileNumsArr[i].length; i++) {
-        if(tileNumsArr[i] === ""){
-            emptyTile.textContent = tileNumsArr[i]
-        }
-        tiles[i].textContent = tileNumsArr[i]        
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].textContent = tileNumsArr[i]
+        if(tiles[i].textContent === ''){
+            emptyTile.parentNode.insertBefore(emptyTile, tiles[i])
+        }        
     }
-}
+    
+
+} */
 if(localStorage.getItem('numValues')){
     let b = localStorage.getItem('numValues');
     console.log(b);
 }
-/* if(localStorage.getItem('size')) {
+if(localStorage.getItem('size')) {
     changeSize(parseInt(localStorage.getItem('size')));
-} */
+}
 if(localStorage.getItem('count')) {
     count = parseInt(localStorage.getItem('count'));
     updateCount(0)
