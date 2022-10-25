@@ -95,22 +95,22 @@ function initializeLayout(size) {
 
 
     size3.addEventListener('click', () => {
-        changeSize(3);
+        changeSize(3, true);
     })
     size4.addEventListener('click', () => {
-        changeSize(4);
+        changeSize(4, true);
     })
     size5.addEventListener('click', () => {
-        changeSize(5);
+        changeSize(5, true);
     })
     size6.addEventListener('click', () => {
-        changeSize(6);
+        changeSize(6, true);
     })
     size7.addEventListener('click', () => {
-        changeSize(7);
+        changeSize(7, true);
     })
     size8.addEventListener('click', () => {
-        changeSize(8);
+        changeSize(8, true);
     })
 
     save.addEventListener('click', setLocalStorage)
@@ -145,6 +145,8 @@ function initializeLayout(size) {
 function shuffleNumbers() {
     updateCount(0, true)
     removeListeners()
+    const newGame = document.querySelector('.shuffle')
+    newGame.removeEventListener('click', shuffleNumbers)
     const emptyTile = document.querySelector('.empty-tile')
 
     const tileNumbers = document.querySelectorAll('.game-tile');
@@ -170,6 +172,9 @@ function shuffleNumbers() {
     }
 
     checkPositions();
+    setTimeout(()=>{
+        newGame.addEventListener('click', shuffleNumbers)
+    },250)
 }
 
 function checkPositions() {
@@ -357,7 +362,7 @@ function playSound() {
 }
 
 /*change size*/
-function changeSize(size) {
+function changeSize(size, shuffle) {
     if (size === 3) {
         width = size;
         previousSize = currentSize;
@@ -365,7 +370,9 @@ function changeSize(size) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        shuffleNumbers();
+        if(shuffle){
+            shuffleNumbers();
+        }
     }
     if (size === 4) {
         width = size;
@@ -374,7 +381,9 @@ function changeSize(size) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        shuffleNumbers();
+        if(shuffle){
+            shuffleNumbers();
+        }
     }
     if (size === 5) {
         width = size;
@@ -383,7 +392,9 @@ function changeSize(size) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        shuffleNumbers();
+        if(shuffle){
+            shuffleNumbers();
+        }
     }
     if (size === 6) {
         width = size;
@@ -392,7 +403,9 @@ function changeSize(size) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        shuffleNumbers();
+        if(shuffle){
+            shuffleNumbers();
+        }
     }
     if (size === 7) {
         width = size;
@@ -401,7 +414,9 @@ function changeSize(size) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        shuffleNumbers();
+        if(shuffle){
+            shuffleNumbers();
+        }
     }
     if (size === 8) {
         width = size;
@@ -410,7 +425,9 @@ function changeSize(size) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        shuffleNumbers();
+        if(shuffle){
+            shuffleNumbers();
+        }
     }
 }
 
@@ -442,26 +459,35 @@ if(localStorage.getItem('time')) {
     const timeDisplay = document.querySelector('.timer')
     timeDisplay.textContent = localStorage.getItem('time');
 }
-/* if(localStorage.getItem('tileNums')){
-    let tileNumsArr = localStorage.getItem('tileNums').split(',');
-    console.log(tileNumsArr);
-    const tiles = document.querySelectorAll('.game-tile')
-    const emptyTile = document.querySelector('.empty-tile')
-    for (let i = 0; i < tiles.length; i++) {
-        tiles[i].textContent = tileNumsArr[i]
-        if(tiles[i].textContent === ''){
-            emptyTile.parentNode.insertBefore(emptyTile, tiles[i])
-        }        
-    }
-    
-
-} */
-if(localStorage.getItem('numValues')){
+/* if(localStorage.getItem('numValues')){
     let b = localStorage.getItem('numValues');
     console.log(b);
-}
+} */
 if(localStorage.getItem('size')) {
-    changeSize(parseInt(localStorage.getItem('size')));
+    changeSize(parseInt(localStorage.getItem('size')), false);
+}
+if(localStorage.getItem('tileNums')){
+    let tileNumsArr = localStorage.getItem('tileNums').split(',');
+    const grid = document.querySelector('.game-grid')
+    
+    grid.innerHTML = ''
+
+    for (let i = 0; i < tileNumsArr.length; i++) {
+        if(tileNumsArr[i] === ""){
+            let newEmptyTile = document.createElement('div');
+            newEmptyTile.classList.add('game-tile', 'empty-tile')
+            newEmptyTile.numValue = 0;
+            newEmptyTile.textContent = "";
+            grid.appendChild(newEmptyTile);
+        } else{
+            let newTile = document.createElement('div')
+            newTile.classList.add('game-tile')
+            newTile.numValue = tileNumsArr[i];
+            newTile.textContent = tileNumsArr[i];
+            grid.appendChild(newTile);
+        }
+    }
+    checkPositions()
 }
 if(localStorage.getItem('count')) {
     count = parseInt(localStorage.getItem('count'));
