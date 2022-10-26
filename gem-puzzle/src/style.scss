@@ -50,6 +50,7 @@ button:hover{
     align-items: center;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .timer-count-wrapper{
@@ -124,11 +125,39 @@ button:hover{
     background-color: $grid-background;
 }
 
+.win-message{
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    left: 0;
+    right: 0;
+    top: 20%;
+    text-align: center;
+    width: 90%;
+    transition: 1s;
+    background-color: rgb(111, 3, 127);
+    border-radius: 4px;
+}
 
+.auto-win{
+    border: 1px solid red;
+    color: red;
+}
 
 .glow{
     background-color: lightcyan;
     transition: 0.1s ease-in;
+}
+
+.leaderboard-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.leaderboard-wrapper > p {
+    text-align: center;
 }
 
 @media screen and (max-width: 1919px) {

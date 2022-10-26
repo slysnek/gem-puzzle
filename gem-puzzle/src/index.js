@@ -4,14 +4,20 @@ import puzzleWrapper from './layout.html';
 import './style.scss';
 import './click.wav'
 
+/*metadata*/
 let gridSize = 16;
 let width = 4;
 let count = 0;
 let previousSize;
 let currentSize = 4;
+let winCondition1 = []
+let winCondition2 = []
+let records = 0;
 
-/* timer */
+let audio = new Audio('audio/click.wav');
+let soundOn = true;
 
+/* timer data */
 let startTime = 0;
 let elapsedTime = 0;
 let timeInterval;
@@ -36,18 +42,7 @@ function updateTime() {
     }
 }
 
-let audio = new Audio('audio/click.wav');
-let soundOn = true;
-
-
-/* class Tile {
-    constructor(position, value, isClickable) {
-        this.position = position;
-        this.value = value;
-        this.isClickable = isClickable;
-    }
-} */
-
+/*app logic functions*/
 function initializeLayout(size) {
     const body = document.querySelector('body');
     body.innerHTML = puzzleWrapper;
@@ -64,6 +59,7 @@ function initializeLayout(size) {
 
     const save = document.querySelector('.save')
     const load = document.querySelector('.load')
+    const autoWin = document.querySelector('.auto-win')
 
     grid.classList.remove(`size-${previousSize}`)
     if (currentSize === 3) {
@@ -90,7 +86,7 @@ function initializeLayout(size) {
 
     /* event listeners */
     newGame.addEventListener('click', shuffleNumbers)
-
+    autoWin.addEventListener('click', win)
     audioTumbler.addEventListener('click', changeSound)
 
 
@@ -138,8 +134,13 @@ function initializeLayout(size) {
     } else {
         audioTumbler.textContent = "Sound: On"
     }
-    /*loading data*/
+    /*saving data*/
     window.addEventListener('beforeunload', setLocalStorage)
+    /*loading data*/
+    if(localStorage.getItem('records')){
+        records = localStorage.getItem('records')
+    }
+    getRecord()
 }
 
 function shuffleNumbers() {
@@ -195,10 +196,7 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i - 1].addEventListener('click', moveRight)
-            } else {
-                console.log('ашипка влево');
             }
-
             if (tiles[i + 1] !== undefined && (i + 1) % width > 0) {//right from zero
                 tiles[i + 1].classList.add('glow')
                 setTimeout(() => {
@@ -206,10 +204,7 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i + 1].addEventListener('click', moveLeft)
-            } else {
-                console.log('ашипка вправо');
             }
-
             if (tiles[i - width] !== undefined) {//up from zero
                 tiles[i - width].classList.add('glow')
                 setTimeout(() => {
@@ -217,9 +212,6 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i - width].addEventListener('click', moveDown)
-            } else {
-                console.log(tiles[i - 1]);
-                console.log('ашипка вверх');
             }
             if (tiles[i + width] !== undefined) {//down from zero
                 tiles[i + width].classList.add('glow')
@@ -228,8 +220,6 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i + width].addEventListener('click', moveUp)
-            } else {
-                console.log('ашипка вниз');
             }
         }
     }
@@ -243,6 +233,13 @@ function updateCount(add = 1, reset) {
         count = 0;
     }
     counter.textContent = `Count: ${count}`;
+}
+
+function removeListeners() {
+    const tiles = document.querySelectorAll('.game-tile')
+    for (let i = 0; i < tiles.length; i++) {
+        tiles[i].parentNode.replaceChild(tiles[i].cloneNode(true), tiles[i])
+    }
 }
 /*move functions*/
 function moveRight(event) {
@@ -264,6 +261,7 @@ function moveRight(event) {
         updateCount();
         playSound()
         checkPositions();
+        checkIfWin()
     },120)
 }
 function moveLeft(event) {
@@ -285,6 +283,7 @@ function moveLeft(event) {
         updateCount();
         playSound()
         checkPositions();
+        checkIfWin()
     }, 120)
 }
 function moveDown(event) {
@@ -307,6 +306,7 @@ function moveDown(event) {
         updateCount();
         playSound()
         checkPositions();
+        checkIfWin()
     }, 120)
 }
 function moveUp(event) {
@@ -329,22 +329,11 @@ function moveUp(event) {
         updateCount();
         playSound()
         checkPositions();
+        checkIfWin()
     },120)
 }
 
-function removeListeners() {
-    const tiles = document.querySelectorAll('.game-tile')
-    for (let i = 0; i < tiles.length; i++) {
-        tiles[i].parentNode.replaceChild(tiles[i].cloneNode(true), tiles[i])
-    }
-}
-
-/*app logic*/
-initializeLayout();
-shuffleNumbers();
-
 /*звуки*/
-
 function changeSound() {
     const audioTumbler = document.querySelector('.sound')
     soundOn === true ? soundOn = false : soundOn = true;
@@ -354,7 +343,6 @@ function changeSound() {
         audioTumbler.textContent = "Sound: On"
     }
 }
-
 function playSound() {
     if (soundOn) {
         audio.play()
@@ -429,6 +417,7 @@ function changeSize(size, shuffle) {
             shuffleNumbers();
         }
     }
+    setWinCondition()
 }
 
 /*storage*/
@@ -450,19 +439,14 @@ function setLocalStorage() {
     localStorage.setItem('size', currentSize)
     localStorage.setItem('numValues', numValues)
     localStorage.setItem('tileNums', tileNums)
+    localStorage.setItem('records', records)
   }
-
-
 function getLocalStorage() {
     console.log('loading..');
 if(localStorage.getItem('time')) {
     const timeDisplay = document.querySelector('.timer')
     timeDisplay.textContent = localStorage.getItem('time');
 }
-/* if(localStorage.getItem('numValues')){
-    let b = localStorage.getItem('numValues');
-    console.log(b);
-} */
 if(localStorage.getItem('size')) {
     changeSize(parseInt(localStorage.getItem('size')), false);
 }
@@ -506,7 +490,99 @@ if(localStorage.getItem('startTime')) {
     startTime = Date.now() - elapsedTime;
     timeInterval = setInterval(updateTime, 1000);
 }
+function setRecords(playerNumber, recordText){
+    localStorage.setItem(`playerRecords${playerNumber}`, recordText)
+}
+function getRecord(){
+    for (let i = 1; i <= records; i++) {
+        const leaderboard = document.querySelector('.leaderboard-table');
+        let record = document.createElement('div');
+        record.textContent = localStorage.getItem(`playerRecords${i}`)
+        console.log(record.textContent);
+        leaderboard.appendChild(record)
+    }
+   /*  while(localStorage.getItem(`playerRecords${i}`)){
 
+    } */
+}
 
+/*win condition*/
+function setWinCondition(){
+    winCondition1 = []
+    winCondition2 = []
+    for (let i = 1; i < gridSize; i++) {
+        winCondition1.push(i.toString())
+        winCondition2.push(i.toString())
+    }
+    winCondition1.unshift('')
+    winCondition2.push('')
+    console.log(winCondition1);
+    console.log(winCondition2);
+}
 
+function checkIfWin(){
+    let tileNums = [];
+    const tiles = document.querySelectorAll('.game-tile')
+    for (let i = 0; i < tiles.length; i++) {
+        tileNums.push(tiles[i].textContent)
+    }
+    let result = tileNums.length === winCondition1.length
+    && tileNums.every((value, index) => value === winCondition1[index])
+    if(result){
+        displayWin()
+    }
+}
+
+function displayWin(){
+    const body = document.querySelector('body')
+    const winMessage = document.createElement('div')
+    const timer = document.querySelector('.timer')
+    const time = timer.textContent;
+    const moveCount = count;
+
+    winMessage.classList.add('win-message')
+    if(count === 0){
+        winMessage.textContent = `Cheater! :P You solved the puzzle in ${time} and ${moveCount} moves!`
+    } else{
+        winMessage.textContent = `Hooray! You solved the puzzle in ${time} and ${moveCount} moves!`
+    }
+
+    body.appendChild(winMessage)
+    clearInterval(timeInterval, 1000)
+    setTimeout(() => {
+        winMessage.remove()
+    }, 3000)
+    setTimeout(() => {
+        let playerName = prompt('Enter your name:')
+        if (playerName===null){
+            playerName = 'Anonimus'
+        }
+        setNewRecord(playerName, moveCount, time, currentSize)
+    }, 1000)
+}
+
+function win(){
+    count = 0;
+    changeSize(currentSize)
+    removeListeners()
+    checkIfWin()
+}
+
+/*leaderboard*/
+function setNewRecord(playerName, moveCount, time, size){
+    const leaderboard = document.querySelector('.leaderboard-table')
+    let record = document.createElement('div')
+    record.innerText = `${playerName} ---  ${moveCount} --- ${time} --- ${size}x${size}`
+    leaderboard.appendChild(record) 
+    console.log(record.innerText);
+    records++;
+    localStorage.setItem('records', records)
+    setRecords(records, record.innerText)
+}
+
+/*start app*/
+initializeLayout();
+shuffleNumbers();
+setWinCondition()
+checkIfWin()
 
