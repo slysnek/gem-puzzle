@@ -6,6 +6,7 @@ $tile-background: rgb(85, 90, 100);
 $tile-background-hover:rgb(146, 154, 167);
 $empty-tile-background: rgb(27, 35, 47);
 $text: rgb(56, 193, 74);
+$blank-text: rgb(33, 113, 43);
 
 *{
     padding: 0;
@@ -66,6 +67,20 @@ button:hover{
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
+}
+
+.grid-wrapper{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+    align-items: center;
+}
+
+.grid-wrapper li{
+    font-size: 1em;
+    color: $blank-text;
 }
 
 .game-grid{
@@ -141,6 +156,11 @@ button:hover{
 }
 
 .auto-win{
+    border: 1px solid rgb(111, 3, 127);;
+    color: rgb(111, 3, 127);;
+}
+
+.load-unavailable{
     border: 1px solid red;
     color: red;
 }

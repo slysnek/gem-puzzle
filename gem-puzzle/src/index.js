@@ -14,6 +14,16 @@ let winCondition1 = []
 let winCondition2 = []
 let records = 0;
 
+
+let isSaved = false;
+
+if(localStorage.getItem('saved')){
+    let isSavedString = localStorage.getItem('saved')
+    if(isSavedString=='true'){
+        isSaved = isSavedString;
+    }
+}
+
 let audio = new Audio('audio/click.wav');
 let soundOn = true;
 
@@ -38,7 +48,8 @@ function updateTime() {
     const timeDisplay = document.querySelector('.timer')
     timeDisplay.textContent = `${hours}:${minutes}:${seconds}`;
     function pad(timeUnit) {
-        return (("0") + timeUnit).length > 2 ? timeUnit : "0" + timeUnit;
+        let unit = (("0") + timeUnit).length > 2 ? timeUnit : "0" + timeUnit;
+            return unit;
     }
 }
 
@@ -60,6 +71,16 @@ function initializeLayout(size) {
     const save = document.querySelector('.save')
     const load = document.querySelector('.load')
     const autoWin = document.querySelector('.auto-win')
+
+    console.log(isSaved);
+    console.log(typeof isSaved);
+
+    if(isSaved === false){
+        load.classList.add('load-unavailable')
+    } else{
+        load.classList.remove('load-unavailable')
+    }
+
 
     grid.classList.remove(`size-${previousSize}`)
     if (currentSize === 3) {
@@ -137,7 +158,7 @@ function initializeLayout(size) {
     /*saving data*/
     window.addEventListener('beforeunload', setLocalStorage)
     /*loading data*/
-    if(localStorage.getItem('records')){
+    if (localStorage.getItem('records')) {
         records = localStorage.getItem('records')
     }
     getRecord()
@@ -173,15 +194,15 @@ function shuffleNumbers() {
     }
 
     checkPositions();
-    setTimeout(()=>{
+    setTimeout(() => {
         newGame.addEventListener('click', shuffleNumbers)
-    },250)
+    }, 250)
 }
 
 function checkPositions() {
     let tileNumber = []
     const tiles = document.querySelectorAll('.game-tile');
-
+    const emptyTile = document.querySelector('.empty-tile')
     for (let i = 0; i < tiles.length; i++) {
         tileNumber.push(tiles[i].textContent);
     }
@@ -195,7 +216,20 @@ function checkPositions() {
                     tiles[i - 1].classList.remove('glow')
                 }
                     , 150)
+
+                tiles[i - 1].draggable = true;
                 tiles[i - 1].addEventListener('click', moveRight)
+                tiles[i - 1].addEventListener('dragstart', (event)=>{
+                    event.dataTransfer.setData("Text", event.target.textContent);
+                })
+/*                 emptyTile.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    dragAndDrop(event, tiles[i - 1])
+                })
+                emptyTile.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                }) */
+
             }
             if (tiles[i + 1] !== undefined && (i + 1) % width > 0) {//right from zero
                 tiles[i + 1].classList.add('glow')
@@ -204,6 +238,17 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i + 1].addEventListener('click', moveLeft)
+                tiles[i + 1].draggable = true;
+                tiles[i + 1].addEventListener('dragstart', (event)=>{
+                    event.dataTransfer.setData("Text", event.target.textContent);
+                })
+/*                 emptyTile.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    dragAndDrop(event, tiles[i+1])
+                })
+                emptyTile.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                }) */
             }
             if (tiles[i - width] !== undefined) {//up from zero
                 tiles[i - width].classList.add('glow')
@@ -212,6 +257,17 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i - width].addEventListener('click', moveDown)
+                tiles[i - width].draggable = true;
+                tiles[i - width].addEventListener('dragstart', (event)=>{
+                    event.dataTransfer.setData("Text", event.target.textContent);
+                })
+/*                 emptyTile.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    dragAndDrop(event, tiles[i - width])
+                })
+                emptyTile.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                }) */
             }
             if (tiles[i + width] !== undefined) {//down from zero
                 tiles[i + width].classList.add('glow')
@@ -220,10 +276,21 @@ function checkPositions() {
                 }
                     , 150)
                 tiles[i + width].addEventListener('click', moveUp)
+                tiles[i + width].draggable = true;
+                tiles[i + width].addEventListener('dragstart', (event)=>{
+                    event.dataTransfer.setData("Text", event.target.textContent);
+                })
+
             }
         }
     }
-
+    emptyTile.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dragAndDrop(event)
+    })
+    emptyTile.addEventListener('dragover', (event) => {
+        event.preventDefault();
+    })
 }
 
 function updateCount(add = 1, reset) {
@@ -248,21 +315,21 @@ function moveRight(event) {
         if (tiles[i] === event.target) {
             let tileWidth = tiles[i].offsetWidth;
             tiles[i].style.transform = `translateX(${tileWidth}px)`
-            setTimeout(()=>{
+            setTimeout(() => {
                 tiles[i].style.transform = "none"
                 tiles[i].parentNode.insertBefore(tiles[i], tiles[i + 2])
-            },100)
-            setTimeout(()=>{
+            }, 100)
+            setTimeout(() => {
                 removeListeners()
-            },110)
+            }, 110)
         }
     }
-    setTimeout(()=>{
+    setTimeout(() => {
         updateCount();
         playSound()
         checkPositions();
         checkIfWin()
-    },120)
+    }, 120)
 }
 function moveLeft(event) {
     const tiles = document.querySelectorAll('.game-tile');
@@ -270,16 +337,16 @@ function moveLeft(event) {
         if (tiles[i] === event.target) {
             let tileWidth = tiles[i].offsetWidth;
             tiles[i].style.transform = `translateX(${-tileWidth}px)`
-            setTimeout(()=>{
+            setTimeout(() => {
                 tiles[i].style.transform = "none"
                 tiles[i].parentNode.insertBefore(tiles[i], tiles[i - 1])
-            },100)
-            setTimeout(()=>{
+            }, 100)
+            setTimeout(() => {
                 removeListeners()
             }, 110)
         }
     }
-    setTimeout(()=>{
+    setTimeout(() => {
         updateCount();
         playSound()
         checkPositions();
@@ -290,19 +357,19 @@ function moveDown(event) {
     const tiles = document.querySelectorAll('.game-tile');
     for (let i = 0; i < tiles.length; i++) {
         if (tiles[i] === event.target) {
-                let tileWidth = tiles[i].offsetWidth;
-                tiles[i].style.transform = `translateY(${tileWidth}px)`
-                setTimeout(()=>{
-                    tiles[i].style.transform = "none"
-                    tiles[i].parentNode.insertBefore(tiles[i], tiles[i + width + 1])
-                    tiles[i + width].parentNode.insertBefore(tiles[i + width], tiles[i + 1])
-                }, 100)
-                setTimeout(()=>{
-                    removeListeners()
-                }, 110)
+            let tileWidth = tiles[i].offsetWidth;
+            tiles[i].style.transform = `translateY(${tileWidth}px)`
+            setTimeout(() => {
+                tiles[i].style.transform = "none"
+                tiles[i].parentNode.insertBefore(tiles[i], tiles[i + width + 1])
+                tiles[i + width].parentNode.insertBefore(tiles[i + width], tiles[i + 1])
+            }, 100)
+            setTimeout(() => {
+                removeListeners()
+            }, 110)
         }
     }
-    setTimeout(()=>{
+    setTimeout(() => {
         updateCount();
         playSound()
         checkPositions();
@@ -315,23 +382,84 @@ function moveUp(event) {
         if (tiles[i] === event.target) {
             let tileWidth = tiles[i].offsetWidth;
             tiles[i].style.transform = `translateY(${-tileWidth}px)`
-            setTimeout(()=>{
+            setTimeout(() => {
                 tiles[i].style.transform = "none"
                 tiles[i].parentNode.insertBefore(tiles[i], tiles[i - width])
                 tiles[i - width].parentNode.insertBefore(tiles[i - width], tiles[i + 1])
             }, 100)
-            setTimeout(()=>{
+            setTimeout(() => {
                 removeListeners()
-            },110)
+            }, 110)
         }
     }
-    setTimeout(()=>{
+    setTimeout(() => {
         updateCount();
         playSound()
         checkPositions();
         checkIfWin()
-    },120)
+    }, 120)
 }
+
+/*drag and drop movement*/
+function dragAndDrop(event) {
+    let data = event.dataTransfer.getData("Text");
+    const tiles = document.querySelectorAll('.game-tile');
+
+    for (let i = 0; i < tiles.length; i++) {
+        if (tiles[i].textContent === data) {
+            let tileWidth = tiles[i].offsetWidth;
+            if (event.target === tiles[i + 1]) {
+                console.log('num moving RIght');
+                tiles[i].style.transform = `translateX(${tileWidth}px)`
+                setTimeout(() => {
+                    tiles[i].style.transform = "none"
+                    //right
+                    tiles[i].parentNode.insertBefore(tiles[i], tiles[i + 2])
+                }, 100)
+            } 
+            else if(event.target === tiles[i - 1]){
+                console.log('num moving left');
+                tiles[i].style.transform = `translateX(${-tileWidth}px)`
+                setTimeout(() => {
+                    tiles[i].style.transform = "none"
+                    //left
+                    tiles[i].parentNode.insertBefore(tiles[i], tiles[i - 1])
+                }, 100)
+            }
+            else if(event.target === tiles[i + width]){
+                console.log('num moving down');
+                tiles[i].style.transform = `translateY(${tileWidth}px)`
+                setTimeout(() => {
+                    tiles[i].style.transform = "none"
+                    //down
+                    tiles[i].parentNode.insertBefore(tiles[i], tiles[i + width + 1])
+                    tiles[i + width].parentNode.insertBefore(tiles[i + width], tiles[i + 1])
+                }, 100)
+            }
+            else if(event.target === tiles[i - width]){
+                console.log('num moving up');
+                tiles[i].style.transform = `translateY(${-tileWidth}px)`
+                setTimeout(() => {
+                    tiles[i].style.transform = "none"
+                    //up
+                    tiles[i].parentNode.insertBefore(tiles[i], tiles[i - width])
+                    tiles[i - width].parentNode.insertBefore(tiles[i - width], tiles[i+1])
+                }, 100)
+            }
+
+                setTimeout(() => {
+                    removeListeners()
+                }, 110)
+            }
+        }
+        setTimeout(() => {
+            updateCount();
+            playSound()
+            checkPositions();
+            checkIfWin()
+        }, 120)
+    }
+
 
 /*звуки*/
 function changeSound() {
@@ -358,7 +486,7 @@ function changeSize(size, shuffle) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        if(shuffle){
+        if (shuffle) {
             shuffleNumbers();
         }
     }
@@ -369,7 +497,7 @@ function changeSize(size, shuffle) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        if(shuffle){
+        if (shuffle) {
             shuffleNumbers();
         }
     }
@@ -380,7 +508,7 @@ function changeSize(size, shuffle) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        if(shuffle){
+        if (shuffle) {
             shuffleNumbers();
         }
     }
@@ -391,7 +519,7 @@ function changeSize(size, shuffle) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        if(shuffle){
+        if (shuffle) {
             shuffleNumbers();
         }
     }
@@ -402,7 +530,7 @@ function changeSize(size, shuffle) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        if(shuffle){
+        if (shuffle) {
             shuffleNumbers();
         }
     }
@@ -413,7 +541,7 @@ function changeSize(size, shuffle) {
         gridSize = size * size
         const grid = document.querySelector('.game-grid')
         initializeLayout(size);
-        if(shuffle){
+        if (shuffle) {
             shuffleNumbers();
         }
     }
@@ -422,6 +550,9 @@ function changeSize(size, shuffle) {
 
 /*storage*/
 function setLocalStorage() {
+    isSaved = true;
+    const load = document.querySelector('.load')
+    load.classList.remove('load-unavailable')
     console.log('saving...');
     const timeDisplay = document.querySelector('.timer')
     const tiles = document.querySelectorAll('.game-tile')
@@ -440,60 +571,72 @@ function setLocalStorage() {
     localStorage.setItem('numValues', numValues)
     localStorage.setItem('tileNums', tileNums)
     localStorage.setItem('records', records)
-  }
+    localStorage.setItem('saved', isSaved)
+}
 function getLocalStorage() {
-    console.log('loading..');
-if(localStorage.getItem('time')) {
-    const timeDisplay = document.querySelector('.timer')
-    timeDisplay.textContent = localStorage.getItem('time');
-}
-if(localStorage.getItem('size')) {
-    changeSize(parseInt(localStorage.getItem('size')), false);
-}
-if(localStorage.getItem('tileNums')){
-    let tileNumsArr = localStorage.getItem('tileNums').split(',');
-    const grid = document.querySelector('.game-grid')
-    
-    grid.innerHTML = ''
-
-    for (let i = 0; i < tileNumsArr.length; i++) {
-        if(tileNumsArr[i] === ""){
-            let newEmptyTile = document.createElement('div');
-            newEmptyTile.classList.add('game-tile', 'empty-tile')
-            newEmptyTile.numValue = 0;
-            newEmptyTile.textContent = "";
-            grid.appendChild(newEmptyTile);
-        } else{
-            let newTile = document.createElement('div')
-            newTile.classList.add('game-tile')
-            newTile.numValue = tileNumsArr[i];
-            newTile.textContent = tileNumsArr[i];
-            grid.appendChild(newTile);
-        }
+    if (isSaved === false){
+        return
     }
-    checkPositions()
-}
-if(localStorage.getItem('count')) {
-    count = parseInt(localStorage.getItem('count'));
-    updateCount(0)
-}
-if(localStorage.getItem('elapsedTime')) {
-    elapsedTime = parseInt(localStorage.getItem('elapsedTime'));
-}
-if(localStorage.getItem('startTime')) {
-    startTime = parseInt(localStorage.getItem('startTime'));
-}
+    console.log('loading..');
+    if (localStorage.getItem('time')) {
+        const timeDisplay = document.querySelector('.timer')
+        timeDisplay.textContent = localStorage.getItem('time');
+    } else {
+        const timeDisplay = document.querySelector('.timer')
+        timeDisplay.textContent = '00:00:00';
+    }
+    if (localStorage.getItem('size')) {
+        changeSize(parseInt(localStorage.getItem('size')), false);
+    }
+    if (localStorage.getItem('tileNums')) {
+        let tileNumsArr = localStorage.getItem('tileNums').split(',');
+        const grid = document.querySelector('.game-grid')
+
+        grid.innerHTML = ''
+
+        for (let i = 0; i < tileNumsArr.length; i++) {
+            if (tileNumsArr[i] === "") {
+                let newEmptyTile = document.createElement('div');
+                newEmptyTile.classList.add('game-tile', 'empty-tile')
+                newEmptyTile.numValue = 0;
+                newEmptyTile.textContent = "";
+                grid.appendChild(newEmptyTile);
+            } else {
+                let newTile = document.createElement('div')
+                newTile.classList.add('game-tile')
+                newTile.numValue = tileNumsArr[i];
+                newTile.textContent = tileNumsArr[i];
+                grid.appendChild(newTile);
+            }
+        }
+        checkPositions()
+    }
+    if (localStorage.getItem('count')) {
+        count = parseInt(localStorage.getItem('count'));
+        updateCount(0)
+    }
+    if (localStorage.getItem('elapsedTime')) {
+        elapsedTime = parseInt(localStorage.getItem('elapsedTime'));
+    }
+    if (localStorage.getItem('startTime')) {
+        startTime = parseInt(localStorage.getItem('startTime'));
+    }
     clearInterval(timeInterval, 1000)
-    const timeDisplay = document.querySelector('.timer')
-    timeDisplay.textContent = localStorage.getItem('time');
+    if (localStorage.getItem('time')) {
+        const timeDisplay = document.querySelector('.timer')
+        timeDisplay.textContent = localStorage.getItem('time');
+    } else {
+        const timeDisplay = document.querySelector('.timer')
+        timeDisplay.textContent = '00:00:00';
+    }
     elapsedTime = parseInt(localStorage.getItem('elapsedTime'));;
     startTime = Date.now() - elapsedTime;
     timeInterval = setInterval(updateTime, 1000);
 }
-function setRecords(playerNumber, recordText){
+function setRecords(playerNumber, recordText) {
     localStorage.setItem(`playerRecords${playerNumber}`, recordText)
 }
-function getRecord(){
+function getRecord() {
     for (let i = 1; i <= records; i++) {
         const leaderboard = document.querySelector('.leaderboard-table');
         let record = document.createElement('div');
@@ -501,13 +644,13 @@ function getRecord(){
         console.log(record.textContent);
         leaderboard.appendChild(record)
     }
-   /*  while(localStorage.getItem(`playerRecords${i}`)){
-
-    } */
+    /*  while(localStorage.getItem(`playerRecords${i}`)){
+ 
+     } */
 }
 
 /*win condition*/
-function setWinCondition(){
+function setWinCondition() {
     winCondition1 = []
     winCondition2 = []
     for (let i = 1; i < gridSize; i++) {
@@ -520,20 +663,20 @@ function setWinCondition(){
     console.log(winCondition2);
 }
 
-function checkIfWin(){
+function checkIfWin() {
     let tileNums = [];
     const tiles = document.querySelectorAll('.game-tile')
     for (let i = 0; i < tiles.length; i++) {
         tileNums.push(tiles[i].textContent)
     }
     let result = tileNums.length === winCondition1.length
-    && tileNums.every((value, index) => value === winCondition1[index])
-    if(result){
+        && tileNums.every((value, index) => value === winCondition1[index])
+    if (result) {
         displayWin()
     }
 }
 
-function displayWin(){
+function displayWin() {
     const body = document.querySelector('body')
     const winMessage = document.createElement('div')
     const timer = document.querySelector('.timer')
@@ -541,9 +684,9 @@ function displayWin(){
     const moveCount = count;
 
     winMessage.classList.add('win-message')
-    if(count === 0){
+    if (count === 0) {
         winMessage.textContent = `Cheater! :P You solved the puzzle in ${time} and ${moveCount} moves!`
-    } else{
+    } else {
         winMessage.textContent = `Hooray! You solved the puzzle in ${time} and ${moveCount} moves!`
     }
 
@@ -554,14 +697,14 @@ function displayWin(){
     }, 3000)
     setTimeout(() => {
         let playerName = prompt('Enter your name:')
-        if (playerName===null){
+        if (playerName === null) {
             playerName = 'Anonimus'
         }
         setNewRecord(playerName, moveCount, time, currentSize)
     }, 1000)
 }
 
-function win(){
+function win() {
     count = 0;
     changeSize(currentSize)
     removeListeners()
@@ -569,18 +712,16 @@ function win(){
 }
 
 /*leaderboard*/
-function setNewRecord(playerName, moveCount, time, size){
+function setNewRecord(playerName, moveCount, time, size) {
     const leaderboard = document.querySelector('.leaderboard-table')
     let record = document.createElement('div')
     record.innerText = `${playerName} ---  ${moveCount} --- ${time} --- ${size}x${size}`
-    leaderboard.appendChild(record) 
+    leaderboard.appendChild(record)
     console.log(record.innerText);
     records++;
     localStorage.setItem('records', records)
     setRecords(records, record.innerText)
 }
-
-/*drag and drop*/
 
 /*start app*/
 initializeLayout();
