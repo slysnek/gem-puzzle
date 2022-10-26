@@ -580,6 +580,8 @@ function setNewRecord(playerName, moveCount, time, size){
     setRecords(records, record.innerText)
 }
 
+/*drag and drop*/
+
 /*start app*/
 initializeLayout();
 shuffleNumbers();
